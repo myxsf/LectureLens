@@ -1,0 +1,10 @@
+@import './styles.css';
+
+/* Bundled fallback: used only when the system has no CJK UI font. Served by the
+   local Go server, so the app never needs network access to render. */
+@font-face {
+  font-family: 'Noto Sans SC Local';
+  src: url('/api/font') format('truetype');
+  font-weight: 400 700;
+  font-display: swap;
+}

@@ -1,0 +1,35 @@
+# Local development: app + converter side by side.
+#   docker compose up converter     # only the converter (for `go run server.go`)
+#   docker compose up --build       # converter + app container
+services:
+  converter:
+    build:
+      context: .
+      dockerfile: deploy/converter.Dockerfile
+    image: lecturelens-converter:latest
+    ports:
+      - '8000:8000'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:8000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: run the whole stack in Docker. REMOTE_CONVERT_URL points at the
+  # converter service, so the app image never needs LibreOffice itself.
+  app:
+    build:
+      context: .
+      dockerfile: deploy/app.Dockerfile
+    image: lecturelens-app:latest
+    environment:
+      DIST_DIR: /app/dist
+      ASSETS_DIR: /app/assets
+      ADDR: 0.0.0.0:3001
+      REMOTE_CONVERT_URL: http://converter:8000/convert
+    ports:
+      - '3001:3001'
+    depends_on:
+      - converter
+    profiles: ['app']

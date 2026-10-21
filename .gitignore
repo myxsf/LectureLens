@@ -1,0 +1,5 @@
+node_modules/
+dist/
+lecturelens
+*.log
+.DS_Store
